@@ -3,7 +3,7 @@
 
 A gear ratio analyzer for brushed DC line follower robots. Fill in your motor specs and robot dimensions, and COISA tells you how fast your robot will go, how much torque margin you have, whether your wheels will slip, and which gear combination is best for your build.
 
-Built by [LARI — Liga Acadêmica de Robótica e Inovação / Unifor](https://www.unifor.br).
+Built by me (leo) 
 
 ---
 
