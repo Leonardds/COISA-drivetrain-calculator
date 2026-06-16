@@ -1,5 +1,9 @@
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
+PLOT = True   # Set to False to skip the graph
+EXPORT_XLSX   = True
 
 #Code fOr calculatIon of uSing a drivetrAin aka COISA
 # ===============================================================
@@ -343,7 +347,7 @@ print()
 # ================================================================
 #  XLSX EXPORT (optional)
 # ================================================================
-EXPORT_XLSX   = True
+
 XLSX_FILENAME = "coisa.xlsx"
 
 if EXPORT_XLSX:
@@ -387,3 +391,40 @@ if EXPORT_XLSX:
     wb.save(XLSX_FILENAME)
     print(f"  Results exported to {XLSX_FILENAME}  ({len(candidates)} combinations)")
     print()
+
+if PLOT:
+    fig, ax = plt.subplots(figsize=(10, 6))
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]  # one per PWM point
+
+    for i, pct in enumerate(PWM_POINTS):
+        r = evaluate(MY_PINION_TEETH, MY_WHEEL_TEETH, pct)
+
+        stall_torque_wheel = MOTOR_STALL_TORQUE * (MY_WHEEL_TEETH/MY_PINION_TEETH) * GEAR_EFFICIENCY * (pct / 100)
+        no_load_rpm_wheel  = (MOTOR_KV * MOTOR_VOLTAGE * (pct / 100)) / MY_RATIO
+        x = [0, no_load_rpm_wheel]
+        y = [stall_torque_wheel, 0]
+
+        # T×n line
+        ax.plot(x, y, color=colors[i], linewidth=2, label=f"{pct}% PWM")
+
+        # Operating point — where load intersects the T×n line
+        n_op = no_load_rpm_wheel * (1 - r["req_torque"] / stall_torque_wheel) if stall_torque_wheel > 0 else 0
+        ax.scatter(n_op, r["req_torque"], color=colors[i], zorder=5, s=60)
+
+    # Friction limit line — same for all PWM, grab from any evaluate() call
+    r_ref = evaluate(MY_PINION_TEETH, MY_WHEEL_TEETH, 50)
+    ax.axhline(y=r_ref["req_torque"], color="red", linestyle="--",
+               linewidth=1.5, label=f"Min torque to move ({r_ref['req_torque']} mNm)")
+
+    # Labels and formatting
+    ax.set_title(f"Torque × Speed — {MY_PINION_TEETH}:{MY_WHEEL_TEETH}  ({MY_RATIO:.2f}:1)", fontsize=14)
+    ax.set_xlabel("Wheel RPM")
+    ax.set_ylabel("Wheel Torque (mNm)")
+    ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.4)
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+
+    plt.tight_layout()
+    plt.savefig("coisa_curve.png", dpi=150, bbox_inches="tight")
+    plt.show()
