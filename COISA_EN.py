@@ -54,7 +54,55 @@ WHEEL_RANGE         = range(30, 91)       # min to max wheel teeth to test
 MIN_CENTER_DIST_MM  = 7.0     # minimum printable center distance (structural limit)
 MAX_WHEEL_DIAM_MM   = 40.0    # maximum wheel diameter that fits your chassis
 
+
+#  INPUT VALIDATION
 # ================================================================
+errors = []
+#I know i can make a list of tuple but ahhh it works
+if MOTOR_KV <= 0:
+    errors.append("MOTOR_KV must be greater than 0")
+if MOTOR_VOLTAGE <= 0:
+    errors.append("MOTOR_VOLTAGE must be greater than 0")
+if MOTOR_STALL_TORQUE <= 0:
+    errors.append("MOTOR_STALL_TORQUE must be greater than 0")
+if MOTOR_STALL_CURRENT <= 0:
+    errors.append("MOTOR_STALL_CURRENT must be greater than 0")
+if MY_PINION_TEETH <= 0:
+    errors.append("MY_PINION_TEETH must be greater than 0")
+if MY_WHEEL_TEETH <= 0:
+    errors.append("MY_WHEEL_TEETH must be greater than 0")
+if GEAR_MODULE <= 0:
+    errors.append("GEAR_MODULE must be greater than 0")
+if not (0 < GEAR_EFFICIENCY <= 1):
+    errors.append("GEAR_EFFICIENCY must be between 0 and 1 (e.g. 0.85)")
+if WHEEL_DIAMETER_MM is not None and WHEEL_DIAMETER_MM <= 0:
+    errors.append("WHEEL_DIAMETER_MM must be greater than 0 or None")
+if ROBOT_MASS_G <= 0:
+    errors.append("ROBOT_MASS_G must be greater than 0")
+if not (0 < FRICTION_COEFF <= 1):
+    errors.append("FRICTION_COEFF must be between 0 and 1 (e.g. 0.45)")
+if NUM_DRIVE_WHEELS <= 0:
+    errors.append("NUM_DRIVE_WHEELS must be greater than 0")
+if NUM_MOTORS <= 0:
+    errors.append("NUM_MOTORS must be greater than 0")
+if TARGET_SPEED_MS is not None and TARGET_SPEED_MS <= 0:
+    errors.append("TARGET_SPEED_MS must be greater than 0 or None")
+if MIN_CENTER_DIST_MM <= 0:
+    errors.append("MIN_CENTER_DIST_MM must be greater than 0")
+if MAX_WHEEL_DIAM_MM <= 0:
+    errors.append("MAX_WHEEL_DIAM_MM must be greater than 0")
+
+if errors:
+    print()
+    print("  CONFIGURATION ERROR — fix the following before running:")
+    print()
+    for e in errors:
+        print(f"    ✗  {e}")
+    print()
+    exit(1)
+
+
+
 #  CALCULATIONS — do not edit below this line
 # ================================================================
 
@@ -162,7 +210,7 @@ def rating_label(t_margin):
 def slip_label(slip):
     return "YES — wheel will spin" if slip else "No"
 
-# ================================================================
+
 #  REPORT
 # ================================================================
 
